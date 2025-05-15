@@ -1,0 +1,255 @@
+//
+// GENERATED FILE
+//
+
+use super::*;
+use crate::SpiceContext;
+use f2rust_std::*;
+
+pub const LBCELL: i32 = -5;
+
+/// Symmetric difference of two double precision sets
+///
+/// Take the symmetric difference of two double precision sets
+/// to form a third set.
+///
+/// # Required Reading
+///
+/// * [SETS](crate::required_reading::sets)
+///
+/// # Brief I/O
+///
+/// ```text
+///  VARIABLE  I/O  DESCRIPTION
+///  --------  ---  --------------------------------------------------
+///  A          I   First input set.
+///  B          I   Second input set.
+///  C          O   Symmetric difference of A and B.
+/// ```
+///
+/// # Detailed Input
+///
+/// ```text
+///  A        is a set.
+///
+///
+///  B        is a set, distinct from A.
+/// ```
+///
+/// # Detailed Output
+///
+/// ```text
+///  C        is a set, distinct from sets A and B, which
+///           contains the symmetric difference of A and B
+///           (that is, all of the elements which are in A
+///           OR in B, but NOT in both).
+///
+///           If the size (maximum cardinality) of C is smaller
+///           than the cardinality of the symmetric difference of
+///           A and B, then only as many items as will fit in C
+///           are included, and an error is signaled.
+/// ```
+///
+/// # Exceptions
+///
+/// ```text
+///  1)  If the symmetric difference of the two sets causes an excess
+///      of elements, the error SPICE(SETEXCESS) is signaled.
+/// ```
+///
+/// # Examples
+///
+/// ```text
+///  The SYMMETRIC DIFFERENCE of two sets contains every
+///  element which is in the first set OR in the second set,
+///  but NOT in both sets.
+///
+///        {a,b}      sym. difference {c,d}     =  {a,b,c,d}
+///        {a,b,c}                    {b,c,d}      {a,d}
+///        {a,b,c,d}                  {}           {a,b,c,d}
+///        {}                         {a,b,c,d}    {a,b,c,d}
+///        {}                         {}           {}
+///
+///  The following call
+///
+///        CALL SDIFFC  ( PLANETS, ASTEROIDS, RESULT )
+///
+///  places the symmetric difference of the character sets PLANETS and
+///  ASTEROIDS into the character set RESULT.
+///
+///  The output set must be distinct from both of the input sets.
+///  For example, the following calls are invalid.
+///
+///        CALL SDIFFI ( CURRENT,     NEW, CURRENT )
+///        CALL SDIFFI (     NEW, CURRENT, CURRENT )
+///
+///  In each of the examples above, whether or not the subroutine
+///  signals an error, the results will almost certainly be wrong.
+///  Nearly the same effect can be achieved, however, by placing the
+///  result into a temporary set, which is immediately copied back
+///  into one of the input sets, as shown below.
+///
+///        CALL SDIFFI ( CURRENT, NEW,  TEMP )
+///        CALL COPYI  ( TEMP,    NEW )
+/// ```
+///
+/// # Author and Institution
+///
+/// ```text
+///  N.J. Bachman       (JPL)
+///  C.A. Curzon        (JPL)
+///  J. Diaz del Rio    (ODC Space)
+///  W.L. Taber         (JPL)
+///  I.M. Underwood     (JPL)
+/// ```
+///
+/// # Version
+///
+/// ```text
+/// -    SPICELIB Version 1.1.0, 20-AUG-2021 (JDR)
+///
+///         Added IMPLICIT NONE statement.
+///
+///         Edited the header to comply with NAIF standard.
+///
+/// -    SPICELIB Version 1.0.1, 10-MAR-1992 (WLT)
+///
+///         Comment section for permuted index source lines was added
+///         following the header.
+///
+/// -    SPICELIB Version 1.0.0, 31-JAN-1990 (CAC) (WLT) (IMU) (NJB)
+/// ```
+///
+/// # Revisions
+///
+/// ```text
+/// -    Beta Version 1.1.0, 06-JAN-1989 (NJB)
+///
+///         Calling protocol of EXCESS changed. Call to SETMSG removed.
+/// ```
+pub fn sdiffd(ctx: &mut SpiceContext, a: &[f64], b: &[f64], c: &mut [f64]) -> crate::Result<()> {
+    SDIFFD(a, b, c, ctx.raw_context())?;
+    ctx.handle_errors()?;
+    Ok(())
+}
+
+//$Procedure SDIFFD ( Symmetric difference of two double precision sets )
+pub fn SDIFFD(A: &[f64], B: &[f64], C: &mut [f64], ctx: &mut Context) -> f2rust_std::Result<()> {
+    let A = DummyArray::new(A, LBCELL..);
+    let B = DummyArray::new(B, LBCELL..);
+    let mut C = DummyArrayMut::new(C, LBCELL..);
+    let mut APOINT: i32 = 0;
+    let mut BPOINT: i32 = 0;
+    let mut CSIZE: i32 = 0;
+    let mut ACARD: i32 = 0;
+    let mut BCARD: i32 = 0;
+    let mut CCARD: i32 = 0;
+    let mut OVER: i32 = 0;
+
+    //
+    // SPICELIB functions
+    //
+
+    //
+    // Local variables
+    //
+
+    //
+    // Set up the error processing.
+    //
+    if RETURN(ctx) {
+        return Ok(());
+    }
+    CHKIN(b"SDIFFD", ctx)?;
+
+    //
+    // Find the cardinality of the input sets, and the allowed size
+    // of the output set.
+    //
+    ACARD = CARDD(A.as_slice(), ctx)?;
+    BCARD = CARDD(B.as_slice(), ctx)?;
+    CSIZE = SIZED(C.as_slice(), ctx)?;
+
+    //
+    // Begin with the input pointers at the first elements of the
+    // input sets. The cardinality of the output set is zero.
+    // And there is no overflow so far.
+    //
+    APOINT = 1;
+    BPOINT = 1;
+
+    CCARD = 0;
+    OVER = 0;
+
+    //
+    // When the end of both input sets are reached, we're done.
+    //
+    while ((APOINT <= ACARD) || (BPOINT <= BCARD)) {
+        //
+        // If there is still space in the output set, fill it
+        // as necessary.
+        //
+        if (CCARD < CSIZE) {
+            if (APOINT > ACARD) {
+                CCARD = (CCARD + 1);
+                C[CCARD] = B[BPOINT];
+                BPOINT = (BPOINT + 1);
+            } else if (BPOINT > BCARD) {
+                CCARD = (CCARD + 1);
+                C[CCARD] = A[APOINT];
+                APOINT = (APOINT + 1);
+            } else if (A[APOINT] == B[BPOINT]) {
+                APOINT = (APOINT + 1);
+                BPOINT = (BPOINT + 1);
+            } else if (A[APOINT] < B[BPOINT]) {
+                CCARD = (CCARD + 1);
+                C[CCARD] = A[APOINT];
+                APOINT = (APOINT + 1);
+            } else if (B[BPOINT] < A[APOINT]) {
+                CCARD = (CCARD + 1);
+                C[CCARD] = B[BPOINT];
+                BPOINT = (BPOINT + 1);
+            }
+
+        //
+        // Otherwise, stop filling the array, but continue to count the
+        // number of elements in excess of the size of the output set.
+        //
+        } else {
+            if (APOINT > ACARD) {
+                OVER = (OVER + 1);
+                BPOINT = (BPOINT + 1);
+            } else if (BPOINT > BCARD) {
+                OVER = (OVER + 1);
+                APOINT = (APOINT + 1);
+            } else if (A[APOINT] == B[BPOINT]) {
+                APOINT = (APOINT + 1);
+                BPOINT = (BPOINT + 1);
+            } else if (A[APOINT] < B[BPOINT]) {
+                OVER = (OVER + 1);
+                APOINT = (APOINT + 1);
+            } else if (B[BPOINT] < A[APOINT]) {
+                OVER = (OVER + 1);
+                BPOINT = (BPOINT + 1);
+            }
+        }
+    }
+
+    //
+    // Set the cardinality of the output set.
+    //
+    SCARDD(CCARD, C.as_slice_mut(), ctx)?;
+
+    //
+    // Report any excess.
+    //
+
+    if (OVER > 0) {
+        EXCESS(OVER, b"set", ctx)?;
+        SIGERR(b"SPICE(SETEXCESS)", ctx)?;
+    }
+
+    CHKOUT(b"SDIFFD", ctx)?;
+
+    Ok(())
+}
