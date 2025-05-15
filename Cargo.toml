@@ -1,0 +1,44 @@
+[package]
+name = "rsspice"
+version = "0.1.0"
+edition = "2024"
+license-file = "LICENSE.md"
+readme = "README.md"
+repository = "https://github.com/zaynar/rsspice"
+description = "Pure Rust port of the SPICE Toolkit for space geometry"
+categories = ["aerospace", "science", "api-bindings"]
+keywords = ["spice", "spicelib"]
+
+[dependencies]
+f2rust_std = { version = "0.1.0", git = "https://github.com/zaynar/f2rust.git" }
+
+[dev-dependencies]
+approx = "0.5.1"
+clap = { version = "4.5.37", features = ["derive"] }
+itertools = "0.14.0"
+nalgebra = "0.33.2"
+rayon = "1.10.0"
+tempfile = "3.20.0"
+
+[features]
+tspice = []
+
+[[example]]
+name = "convtm"
+path = "lessons/remote_sensing/convtm.rs"
+
+[[example]]
+name = "subpts"
+path = "lessons/remote_sensing/subpts.rs"
+
+[[example]]
+name = "visibl"
+path = "lessons/event_finding/visibl.rs"
+
+[[example]]
+name = "scvel"
+path = "lessons/insitu_sensing/scvel.rs"
+
+[[example]]
+name = "erotat"
+path = "lessons/binary_pck/erotat.rs"
