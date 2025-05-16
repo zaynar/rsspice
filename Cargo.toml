@@ -8,6 +8,7 @@ repository = "https://github.com/zaynar/rsspice"
 description = "Pure Rust port of the SPICE Toolkit for space geometry"
 categories = ["aerospace", "science", "api-bindings"]
 keywords = ["spice", "spicelib"]
+exclude = ["/testdata/spk"]
 
 [dependencies]
 f2rust_std = { version = "0.1.0", git = "https://github.com/zaynar/f2rust.git" }
